@@ -1,0 +1,39 @@
+<script>
+  const otplib = window.otplibPresetBrowser; // gunakan preset-browser
+
+  const input = document.getElementById('secretInput');
+  const codeElem = document.getElementById('code');
+  const timerElem = document.getElementById('timer');
+
+  function updateCode() {
+    const secret = input.value.trim().replace(/\s/g, '');
+    if (secret.length < 16 || secret.length > 64) {
+      codeElem.textContent = 'Kode: (secret tidak valid)';
+      return;
+    }
+    try {
+      const token = otplib.authenticator.generate(secret);
+      codeElem.textContent = 'Kode: ' + token;
+    } catch (e) {
+      codeElem.textContent = 'Kode: (gagal generate)';
+    }
+  }
+
+  function updateTimer() {
+    const remaining = 30 - Math.floor(Date.now() / 1000) % 30;
+    timerElem.textContent = `Waktu tersisa: ${remaining} detik`;
+  }
+
+  input.addEventListener('input', updateCode);
+  setInterval(() => {
+    updateCode();
+    updateTimer();
+  }, 1000);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlSecret = urlParams.get('secret');
+  if (urlSecret) {
+    input.value = urlSecret;
+    updateCode();
+  }
+</script>
